@@ -33,9 +33,4 @@ def webhook():
     return "Updated", 200
 
 if __name__ == '__main__':
-    subprocess.call(
-        ["git", "pull"],
-        cwd="/home/pi/Raspberry-Pi-Website",
-        env=env
-    )  
     app.run(host='0.0.0.0', port=5000)
