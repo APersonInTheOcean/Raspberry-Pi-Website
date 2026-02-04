@@ -8,6 +8,9 @@ app = Flask(__name__)
 
 SECRET = "1021"
 
+env = os.environ.copy()
+env["GIT_SSH_COMMAND"] = "ssh -i /home/pi/.ssh/id_ed25519_no_pass"
+
 def verify_signature(data, signature):
     mac = hmac.new(SECRET.encode(), msg=data, digestmod=hashlib.sha256)
     expected = 'sha256=' + mac.hexdigest()
@@ -20,8 +23,7 @@ def webhook():
     if not verify_signature(request.data, signature):
         return "Invalid signature", 403
 
-    env = os.environ.copy()
-    env["GIT_SSH_COMMAND"] = "ssh -i /home/pi/.ssh/id_ed25519_no_pass"
+    
 
     subprocess.call(
         ["git", "pull"],
@@ -31,4 +33,9 @@ def webhook():
     return "Updated", 200
 
 if __name__ == '__main__':
+    subprocess.call(
+        ["git", "pull"],
+        cwd="/home/pi/Raspberry-Pi-Website",
+        env=env
+    )  
     app.run(host='0.0.0.0', port=5000)
