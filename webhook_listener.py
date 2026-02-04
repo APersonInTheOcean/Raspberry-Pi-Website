@@ -16,8 +16,8 @@ def verify_signature(data, signature):
 def webhook():
     signature = request.headers.get('X-Hub-Signature-256')
 
-    if not verify_signature(request.data, signature):
-        return "Invalid signature", 403
+    #if not verify_signature(request.data, signature):
+    #    return "Invalid signature", 403
 
     subprocess.call(['git', 'pull'], cwd='/home/pi/Raspberry-Pi-Website')
     return "Updated", 200
