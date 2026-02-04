@@ -2,6 +2,7 @@ from flask import Flask, request
 import subprocess
 import hmac
 import hashlib
+import os
 
 app = Flask(__name__)
 
@@ -19,7 +20,14 @@ def webhook():
     if not verify_signature(request.data, signature):
         return "Invalid signature", 403
 
-    subprocess.call(['git', 'pull'], cwd='/home/pi/Raspberry-Pi-Website')
+    env = os.environ.copy()
+    env["GIT_SSH_COMMAND"] = "ssh -i /home/pi/.ssh/id_ed25519_no_pass"
+
+    subprocess.call(
+        ["git", "pull"],
+        cwd="/home/pi/Raspberry-Pi-Website",
+        env=env
+    )   
     return "Updated", 200
 
 if __name__ == '__main__':
