@@ -9,7 +9,7 @@ app = Flask(__name__)
 SECRET = "1021"
 
 env = os.environ.copy()
-env["GIT_SSH_COMMAND"] = "ssh -i /home/pi/.ssh/id_ed25519_no_pass"
+env["GIT_SSH_COMMAND"] = "ssh -i /home/raspberrypi/.ssh/id_ed25519.pub"
 
 def verify_signature(data, signature):
     mac = hmac.new(SECRET.encode(), msg=data, digestmod=hashlib.sha256)
@@ -27,7 +27,7 @@ def webhook():
 
     subprocess.call(
         ["git", "pull"],
-        cwd="/home/pi/Raspberry-Pi-Website",
+        cwd="/home/raspberrypi/Raspberry-Pi-Website",
         env=env
     )   
     return "Updated", 200
