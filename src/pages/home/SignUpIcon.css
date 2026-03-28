@@ -1,0 +1,28 @@
+
+.signUpIconBackground {
+  border: 4px solid #ffffff
+}
+.signUpIconBackground:hover {
+  border: 4px solid #c7c7c7
+}
+.signUpIcon {
+  fill: #ffffff
+}
+.signUpIcon:hover {
+  fill: #c7c7c7
+}
+@media (prefers-color-scheme: light) {
+  .signUpIconBackground {
+    border: 4px solid #213547
+
+  }
+  .signUpIconBackground:hover {
+    border: 4px solid #1f3141
+  }
+  .signUpIcon {
+    fill: #213547
+  }
+  .signUpIcon:hover {
+    fill: #1f3141
+  }
+}

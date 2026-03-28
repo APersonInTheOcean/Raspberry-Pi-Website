@@ -1,0 +1,14 @@
+
+.acc-cred-input {
+  border: none;
+  background-color: #242424;
+  outline: none;
+}
+@media (prefers-color-scheme: light) {
+  .acc-cred-input {
+    border: none;
+    background-color: white;
+    outline: none;
+
+  }
+}

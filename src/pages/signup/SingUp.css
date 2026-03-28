@@ -1,0 +1,17 @@
+button {
+  background-color: #1a1a1a;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #f9f9f9;
+}
+
+@media (prefers-color-scheme: light) {
+  button {
+  background-color: #f9f9f9;
+}
+button:hover {
+  border-color: #1a1a1a;
+}
+
+}
