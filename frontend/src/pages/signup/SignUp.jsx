@@ -3,7 +3,6 @@ import "./SingUp.css"
 
 import TextInputComponent from './TextInputComponent.jsx';
 
-
 function SignUp() {
   return( 
     <>

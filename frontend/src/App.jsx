@@ -1,7 +1,7 @@
-import Home from './pages/home/Home.jsx';
-import SignUp from './pages/signup/SignUp.jsx';
-import Forum from './pages/forum/Forum.jsx';
-import Game from './pages/game/Game.jsx';
+import Home from '../../src/pages/home/Home.jsx';
+import SignUp from '../../src/pages/signup/SignUp.jsx';
+import Forum from '../../src/pages/forum/Forum.jsx';
+import Game from '../../src/pages/game/Game.jsx';
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
