@@ -124,15 +124,16 @@ function Forum() {
             }
             if(data.success){
                 setAccValid(true);
+
             }
+			else{
+            	window.location.replace("/LogIn");
+
+			}
 
 
 		}
 		checkIfValidAccount();
-        if(isAccValid){
-            window.location.replace("/LogIn");
-
-        }
 
 
 
