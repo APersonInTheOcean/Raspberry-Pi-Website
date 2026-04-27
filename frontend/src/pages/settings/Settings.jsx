@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import TextInputComponent from '../signup/TextInputComponent.jsx';
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
 
 
