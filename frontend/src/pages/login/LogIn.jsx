@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 
 function sendAccInfoLogIn(user,pass){
     
-    return fetch("http://localhost:3000/login", {
+    return fetch(API_URL+ ":3000"+ "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ User: user, Password: pass }),

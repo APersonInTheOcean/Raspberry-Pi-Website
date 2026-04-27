@@ -4,8 +4,9 @@ import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
 import { jwtDecode } from "jwt-decode";
 import "./Forum.css"
+const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
-const socket = io("http://localhost:3000");
+const socket = io(API_URL+ ":3000");
 
 
 
@@ -35,7 +36,7 @@ function Forum() {
 
 					const refreshToken = localStorage.getItem("refreshToken");
 
-					const res = await fetch("http://localhost:3000/api/refresh", {
+					const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
 							method: "POST",
 							headers: { 
 									"Content-Type": "application/json",
@@ -65,7 +66,7 @@ function Forum() {
 	}
 	async function getLatestMsgs() {
 
-			const res = await apiRequest("http://localhost:3000/api/getforummessages", {
+			const res = await apiRequest(API_URL+ ":3000"+ "/api/getforummessages", {
 					method: "GET"
 			});
 			const data = await res.json();
@@ -83,7 +84,7 @@ function Forum() {
 	}
 	async function sendForumMsg(text) {
 
-			const res = await apiRequest("http://localhost:3000/api/sendforummessage", {
+			const res = await apiRequest(API_URL+ ":3000"+ "/api/sendforummessage", {
 					method: "Post",
 					headers: {
       					"Content-Type": "application/json"
@@ -130,7 +131,7 @@ function Forum() {
 
 		async function fetchUsername() {
 						
-						const Username = await apiRequest('http://localhost:3000/api/users/getmyusername', {
+						const Username = await apiRequest(API_URL+ ":3000"+ "/api/users/getmyusername", {
 								METHOD: "GET",
 								headers: { 
 										"Content-Type": "application/json",

@@ -9,7 +9,7 @@ function sendAccInfoSignUp(user,pass,email){
     
 
     // Send data to Node.js backend
-    return fetch("http://localhost:3000/signup", {
+    return fetch(API_URL+ ":3000"+ "/signup", {
       method: "POST", // HTTP method
       headers: {
         "Content-Type": "application/json", // tell server it's JSON

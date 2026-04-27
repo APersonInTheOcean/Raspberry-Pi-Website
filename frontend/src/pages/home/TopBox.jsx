@@ -19,7 +19,7 @@ function TopBox(){
 
             const refreshToken = localStorage.getItem("refreshToken");
 
-            const res = await fetch("http://localhost:3000/api/refresh", {
+            const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
@@ -52,7 +52,7 @@ function TopBox(){
 
         async function fetchUsername() {
             
-            const Username = await apiRequest('http://localhost:3000/api/users/getmyusername', {
+            const Username = await apiRequest(API_URL+ ":3000"+ "/api/users/getmyusername", {
                 METHOD: "GET",
                 headers: { 
                     "Content-Type": "application/json",
