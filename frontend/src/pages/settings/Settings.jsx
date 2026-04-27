@@ -54,7 +54,7 @@ function Settings() {
         async function checkIfValidAccount() {
 						
             const refreshToken = localStorage.getItem("refreshToken");
-            const res = await fetch("http://localhost:3000/api/refresh", {
+            const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
                             method: "POST",
                             headers: { 
                                     "Content-Type": "application/json",
@@ -85,24 +85,30 @@ function Settings() {
 
 
     function handleLogOutClick(){
-        async function checkIfValidAccount() {
-                    
-            const res = await apiRequest("http://localhost:3000/api/getforummessages", {
-                        method: "GET"
+        async function logOutDatabase() {
+            const refreshToken = localStorage.getItem("refreshToken");
+            const res = await apiRequest(API_URL+ ":3000"+ "/api/logout", {
+                        method: "post",
+                        headers: { 
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bearer ${refreshToken}`, 
+                            },
             });
             const data = await res.json();
             if (data.error){
                     console.log(data.error);
             }
-            console.log(data.messages)
-
-            setMessages(
-                data.messages
-            );
+            if (data.success){
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refreshToken");
+                const navigate = useNavigate();
+                navigate("/Home");
+            }
 
 
 		}
-		checkIfValidAccount();
+		logOutDatabase();
+
     }
 
 

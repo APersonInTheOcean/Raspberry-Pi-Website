@@ -111,7 +111,7 @@ function Forum() {
 		async function checkIfValidAccount() {
 						
             const refreshToken = localStorage.getItem("refreshToken");
-            const res = await fetch("http://localhost:3000/api/refresh", {
+            const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
                             method: "POST",
                             headers: { 
                                     "Content-Type": "application/json",
