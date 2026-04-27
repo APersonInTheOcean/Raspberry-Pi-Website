@@ -26,7 +26,8 @@ function sendAccInfoLogIn(user,pass){
             
         }
         else if(data.accessToken){
-            window.location.replace("/Home");
+            const navigate = useNavigate();
+            navigate("/Home");
             
         }
         return data.message; // return message for whoever called this function

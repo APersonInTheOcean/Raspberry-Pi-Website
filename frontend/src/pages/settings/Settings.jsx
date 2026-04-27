@@ -70,7 +70,8 @@ function Settings() {
                 
             }
             else{
-                window.location.replace("/LogIn");
+                const navigate = useNavigate();
+                navigate("/Home");
 
             }
 
@@ -123,7 +124,7 @@ function Settings() {
 
                 </li>
                 <li>
-                    <Link to="/Forum"
+                    <Link to="/Settings"
                         style={{}}
                     >
                             <div style={{  }}>

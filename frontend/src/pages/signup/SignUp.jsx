@@ -27,7 +27,8 @@ function sendAccInfoSignUp(user,pass,email){
             localStorage.setItem("refreshToken", data.refreshToken); 
             
         }
-        window.location.replace("/Home");
+        const navigate = useNavigate();
+        navigate("/Home");
 
         return data.message; // return message for whoever called this function
       })

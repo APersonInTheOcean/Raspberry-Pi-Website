@@ -127,7 +127,8 @@ function Forum() {
 
             }
 			else{
-            	window.location.replace("/LogIn");
+            	const navigate = useNavigate();
+                navigate("/LogIn");
 
 			}
 
