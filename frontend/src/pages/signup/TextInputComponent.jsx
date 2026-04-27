@@ -1,22 +1,13 @@
 import { useState } from 'react';
 import "./TextInputComponent.css"
 
-function TextInputComponent({Text}) {
-
-  //HOOK THAT LETS BASICALLY SAYS THAT value IS THE VARIABLE TO STORE THE CHANGE, 
-  //AND THE setValue IS THE FUNCTION THAT CAN CHANGE THE STATE
-  const [value, setValue] = useState('');
-
-  // handler function to update the state on change
-  const handleChange = (event) => {
-    setValue(event.target.value);
-  };
-
+function TextInputComponent({ Text, value, onChange }) {
   
   return (
       <div style={{
             display: "flex",
-            justifyContent: "left"
+            justifyContent: "left",
+            
           }}>
 
         <label htmlFor="simple-text-input" style={{padding: "0 10px"}}>{Text}</label>
@@ -26,10 +17,10 @@ function TextInputComponent({Text}) {
                 className="acc-cred-input"
                 type="text"
                 id="simple-text-input"
-                value={value} 
-                onChange={handleChange}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
                 placeholder="Type here..."
-                
+                style={{width: "100%",boxSizing: "border-box"}}
               >
 
               </input>

@@ -1,10 +1,76 @@
 
-import SignUpIcon from "./SignUpIcon";
+import SignUpIcon from "../../assets/SignUpIcon";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import {jwtDecode} from "jwt-decode";
+
 
 function TopBox(){
-    const user = false;
-    const username = "BadBunny";
+    const [username, setUsername] = useState("");
+
+    async function apiRequest(url,options={}) {
+            console.log("hey");
+
+        let token = localStorage.getItem("accessToken");
+
+        const decoded = jwtDecode(token);
+
+        if (decoded.exp * 1000 < Date.now()) {
+
+            const refreshToken = localStorage.getItem("refreshToken");
+
+            const res = await fetch("http://localhost:3000/api/refresh", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${refreshToken}`, 
+                },
+            });
+            const data = await res.json();
+            if (data.error){
+                console.log(data.error);
+            }
+
+            localStorage.setItem("accessToken", data.accessToken);
+            localStorage.setItem("refreshToken", data.refreshToken);
+
+            token = data.accessToken;
+
+        }
+
+        options.headers = {
+            ...options.headers,
+            Authorization: `Bearer ${token}`
+        };
+
+        return fetch(url, options);
+
+
+    }
+
+    useEffect(() => {
+
+        async function fetchUsername() {
+            
+            const Username = await apiRequest('http://localhost:3000/api/users/getmyusername', {
+                METHOD: "GET",
+                headers: { 
+                    "Content-Type": "application/json",
+                },
+                })
+                .then((res) => res.json())
+                .then((data) => data.username);
+
+            setUsername(Username)
+
+
+        }
+        fetchUsername();
+    }, []);
+        
+
+
+
 
     return (
         <ul className ="horizontalUl" style={{ justifyContent: "space-between"}}>
@@ -22,12 +88,19 @@ function TopBox(){
                             Game
                             </Link>
                         </li>
+                        <li>
+                            
+                        </li>
 
                     </ul>
             </li>
             <li>
                 {
-                    user ? (
+                    
+                    username ? (
+
+                        //if username exists ...
+
                     <Link to="/Settings">
                         <ul className ="horizontalUl" style={{justifyContent: "right",}}>
                             <li style={{ padding: "5px 0", fontSize: 20, textAlign: "right" }}>
@@ -45,7 +118,7 @@ function TopBox(){
                                         borderRadius: "50%",
                                         display: "flex",
                                         alignContent: "center",
-                                        allignItems: "center"
+                                        alignItems: "center"
                                     }}>
                                         
                                         
@@ -58,12 +131,16 @@ function TopBox(){
 
                         </ul>
                     </Link>
-                    ):(
-                       <Link to="/SignUp">
+                    ):
+                    
+                        //else ...
+                    
+                    (
+                       <Link to="/LogIn">
                         <ul className ="horizontalUl" style={{justifyContent: "right",}}>
                             <li style={{ padding: "5px 0", fontSize: 20, textAlign: "right" }}>
                                 
-                                <strong>Sign Up</strong>
+                                <strong>Log In</strong>
 
                             </li>
                             
