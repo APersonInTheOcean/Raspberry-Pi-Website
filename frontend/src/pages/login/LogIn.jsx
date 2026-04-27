@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import TextInputComponent from '../signup/TextInputComponent.jsx';
 import SignUpIcon from "../../assets/SignUpIcon.jsx";
 import { Link } from "react-router-dom";
+const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
 
 

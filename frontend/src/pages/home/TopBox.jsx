@@ -3,6 +3,7 @@ import SignUpIcon from "../../assets/SignUpIcon";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {jwtDecode} from "jwt-decode";
+const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
 
 function TopBox(){
