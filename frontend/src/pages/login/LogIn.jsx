@@ -25,7 +25,10 @@ function sendAccInfoLogIn(user,pass){
             localStorage.setItem("refreshToken", data.refreshToken); 
             
         }
-        window.location.replace("/Home");
+        else if(data.accessToken){
+            window.location.replace("/Home");
+            
+        }
         return data.message; // return message for whoever called this function
     })
     .catch(err => console.error(err));

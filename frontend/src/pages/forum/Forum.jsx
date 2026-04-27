@@ -18,6 +18,8 @@ function Forum() {
 	const [sendMsgBoxText, setSendMsgBoxText] = useState("");
 	const [username, setUsername] = useState("");
 	const [messages, setMessages] = useState([]);
+	const [isAccValid, setAccValid] = useState(false);
+	
  
 
 	function addMsgBox(id,message,sender_name,datetime) {
@@ -106,6 +108,34 @@ function Forum() {
 
 	useEffect(() => {
 
+		async function checkIfValidAccount() {
+						
+            const refreshToken = localStorage.getItem("refreshToken");
+            const res = await fetch("http://localhost:3000/api/refresh", {
+                            method: "POST",
+                            headers: { 
+                                    "Content-Type": "application/json",
+                                    "Authorization": `Bearer ${refreshToken}`, 
+                            },
+            });
+            const data = await res.json();
+            if (data.error){
+                    console.log(data.error);
+            }
+            if(data.success){
+                setAccValid(true);
+            }
+
+
+		}
+		checkIfValidAccount();
+        if(isAccValid){
+            window.location.replace("/LogIn");
+
+        }
+
+
+
 		function receiveMessage(msg) {
 			console.log(msg);
 
@@ -149,7 +179,7 @@ function Forum() {
 
 
 
-
+		
 
 
 		

@@ -72,7 +72,10 @@ function Settings() {
 
 		}
 		checkIfValidAccount();
+        if(isAccValid){
+            window.location.replace("/LogIn");
 
+        }
 
 
     }, []);
