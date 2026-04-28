@@ -16,11 +16,11 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: [
-      process.env.CLIENT_URL,
-      process.env.CLIENT_URL2
-    ],
-    methods: ["GET", "POST"] //  React frontend
+	origin: [
+	  process.env.CLIENT_URL,
+	  process.env.CLIENT_URL2
+	],
+	methods: ["GET", "POST"] //  React frontend
   }
 });
 
@@ -100,12 +100,12 @@ const checkEmailTaken = async (username) => {
 //ARROW FUNCTIONS MUST BE DECLARED BEFORE USED
 const getUserId = async (username) => {
 	const [rows] = await db.promise().query(
-    	"SELECT id FROM info WHERE user = ?",
-    	[username]
+		"SELECT id FROM info WHERE user = ?",
+		[username]
   	);
 
   	if (rows.length === 0) {
-    	return null; // user not found
+		return null; // user not found
   	}
 
   	return rows[0].id; 
@@ -115,18 +115,18 @@ const verify = (req, res, next) => {
 
   const authHeader = req.headers.authorization;
   if (authHeader) {
-    const token = authHeader.split(" ")[1];
+	const token = authHeader.split(" ")[1];
 
-    jwt.verify(token, secretKey, (err, payload) => {
-      if (err) {
-        return res.status(403).json("Token is not valid!");
-      }
+	jwt.verify(token, secretKey, (err, payload) => {
+	  if (err) {
+		return res.status(403).json("Token is not valid!");
+	  }
 
-      req.user = payload;
-      next();
-    });
+	  req.user = payload;
+	  next();
+	});
   } else {
-    res.status(401).json("You are not authenticated!");
+	res.status(401).json("You are not authenticated!");
   }
 };
 
@@ -167,10 +167,7 @@ app.post("/login", (req, res) => {
 				console.error(err);
 				return res.status(500).json({ error: "Database error" });
 			}
-		});
-
-
-		res.json(
+			res.json(
 			{ 
 				message: "User logged in successfully!",
 				accessToken,
@@ -178,6 +175,10 @@ app.post("/login", (req, res) => {
 
 			}
 		);
+		});
+
+
+		
 
 	} else {
 		res.status(401).json({ message: "Invalid username or password" });
@@ -241,17 +242,18 @@ app.post("/signup", async (req, res)  =>  {
 					console.error(err);
 					return res.status(500).json({ error: "Database error" });
 				}
+				console.log("User signed up:", User)
+				res.json(
+					{ 
+						message: "User logged in successfully!",
+						accessToken,
+						refreshToken,
+
+					}
+				);
 			});
 
-			console.log("User signed up:", User)
-			res.json(
-				{ 
-					message: "User logged in successfully!",
-					accessToken,
-					refreshToken,
-
-				}
-			);
+			
 
 		}
 	});
@@ -268,8 +270,8 @@ app.post("/api/refresh", (req, res) => {
 
 	//looks in refresh_tokens database to see if it exists in database and hasnt expired
 	const findSql = `
-    SELECT * FROM refresh_tokens
-    WHERE token = ? AND revoked = FALSE AND expires_at > NOW()  `;
+	SELECT * FROM refresh_tokens
+	WHERE token = ? AND revoked = FALSE AND expires_at > NOW()  `;
 
 	db.query(findSql, [refreshToken], (err, results) => {
 		if (err) {
@@ -352,35 +354,35 @@ app.post("/api/logout", (req, res) => {
 
 
 app.post("/api/sendforummessage", verify, (req, res) => {
-	console.log("message received")
 	const { message } = req.body;
 
-    if (!message || !message.trim()) {
-        return res.status(400).json({
-            error: "Message cannot be empty"
-        });
-    }
+	if (!message || !message.trim()) {
+		return res.status(400).json({
+			error: "Message cannot be empty"
+		});
+	}
 
-    // assuming verify puts user info in req.user
-    const sender_id = req.user.user_id;
+	// assuming verify puts user info in req.user
+	const sender_id = req.user.user_id;
 	const sendername = req.user.username;
+	console.log(`message received from: ${sendername}`)
 
-    const sql = `
-      INSERT INTO forum_messages
-      (sender_id, message_text)
-      VALUES (?, ?)
-    `;
+	const sql = `
+	  INSERT INTO forum_messages
+	  (sender_id, message_text)
+	  VALUES (?, ?)
+	`;
 
-    db.query(sql,[sender_id, message],(err, result) => {
+	db.query(sql,[sender_id, message],(err, result) => {
 
-        if (err) {
-          console.error(err);
-          return res.status(500).json({
-            error: "Database error"
-          });
-        }
+		if (err) {
+		  console.error(err);
+		  return res.status(500).json({
+			error: "Database error"
+		  });
+		}
 
-        
+		
 		const newMessage = {
 			id: result.insertId,
 			message_text: message,
@@ -394,8 +396,34 @@ app.post("/api/sendforummessage", verify, (req, res) => {
 			success: true,
 			message: newMessage
 		});
-      }
-    );
+	  }
+	);
+
+});
+app.post("/api/deleteforummessage", verify, (req, res) => {
+	const msgId = req.body.message_id;
+	const userId = req.user.user_id;
+
+	const sql = `
+		DELETE FROM forum_messages
+		WHERE id = ?
+		AND sender_id = ?
+	`;
+
+	db.query(sql, [msgId, userId], (err, result) => {
+		if (err) {
+		console.error(err);
+		return res.status(500).json({ error: "Database error" });
+		}
+
+		if (result.affectedRows === 0) {
+		return res.status(403).json({
+			error: `You can only delete your own messages.`
+		});
+		}
+
+		res.json({ success: true });
+	});
 
 });
 app.get("/api/users/getmyuserid", verify, (req, res) => {

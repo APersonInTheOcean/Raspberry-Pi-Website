@@ -5,39 +5,56 @@ import { useState, useEffect } from "react";
 import {jwtDecode} from "jwt-decode";
 const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
+let refreshPromise = null;
 
 function TopBox(){
     const [username, setUsername] = useState("");
 
+
+    async function refreshTokens() {
+        if (!refreshPromise) {
+            const refreshToken = localStorage.getItem("refreshToken");
+
+            refreshPromise = fetch(API_URL + ":3000/api/refresh", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${refreshToken}`,
+            },
+            })
+            .then(res => res.json())
+            .finally(() => {
+                refreshPromise = null;
+            });
+        }
+
+        return refreshPromise;
+    }
+
+
     async function apiRequest(url,options={}) {
-            console.log("hey");
 
         let token = localStorage.getItem("accessToken");
+        if (!token) {
+            return null;
+        }
 
         const decoded = jwtDecode(token);
 
         if (decoded.exp * 1000 < Date.now()) {
+            const data = await refreshTokens();
 
-            const refreshToken = localStorage.getItem("refreshToken");
-
-            const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
-                method: "POST",
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${refreshToken}`, 
-                },
-            });
-            const data = await res.json();
-            if (data.error){
-                console.log(data.error);
+            if (data.error || !data.accessToken || !data.refreshToken) {
+                console.log(data.error || "Refresh failed");
+                localStorage.clear();
+                return null;
             }
 
             localStorage.setItem("accessToken", data.accessToken);
             localStorage.setItem("refreshToken", data.refreshToken);
 
             token = data.accessToken;
-
-        }
+        }   
 
         options.headers = {
             ...options.headers,
@@ -85,10 +102,10 @@ function TopBox(){
                             Forum
                             </Link>
                         </li>
-                        <li> <Link to="/Game">
+                        {/* <li> <Link to="/Game">
                             Game
                             </Link>
-                        </li>
+                        </li> */}
                         <li>
                             
                         </li>

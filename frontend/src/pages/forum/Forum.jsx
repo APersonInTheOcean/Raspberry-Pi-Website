@@ -4,13 +4,19 @@ import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
 import { jwtDecode } from "jwt-decode";
 import "./Forum.css"
+import { useNavigate } from "react-router-dom";
+
 const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
 const socket = io(API_URL+ ":3000");
 
 
+let refreshPromise = null;
 
 function Forum() {
+	const navigate = useNavigate();
+
+
 	const bottomRef = useRef(null);
 
 
@@ -18,8 +24,7 @@ function Forum() {
 	const [sendMsgBoxText, setSendMsgBoxText] = useState("");
 	const [username, setUsername] = useState("");
 	const [messages, setMessages] = useState([]);
-	const [isAccValid, setAccValid] = useState(false);
-	
+	const [hoveredMsgId, setHoveredMsgId] = useState(null);
  
 
 	function addMsgBox(id,message,sender_name,datetime) {
@@ -27,42 +32,62 @@ function Forum() {
 			...messages,
 			{id:id, message_text: message, sender_name:sender_name,sent_at:datetime}
 		]);
+	
 	}
+
+
+
+	async function refreshTokens() {
+		if (!refreshPromise) {
+			const refreshToken = localStorage.getItem("refreshToken");
+
+			refreshPromise = fetch(API_URL + ":3000/api/refresh", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${refreshToken}`,
+			},
+			})
+			.then(res => res.json())
+			.finally(() => {
+				refreshPromise = null;
+			});
+		}
+
+		return refreshPromise;
+	}
+
+
 	async function apiRequest(url,options={}) {
 
-			let token = localStorage.getItem("accessToken");
+		let token = localStorage.getItem("accessToken");
+		if (!token) {
+			return null;
+		}
 
-			const decoded = jwtDecode(token);
+		const decoded = jwtDecode(token);
 
-			if (decoded.exp * 1000 < Date.now()) {
+		if (decoded.exp * 1000 < Date.now()) {
+			const data = await refreshTokens();
 
-					const refreshToken = localStorage.getItem("refreshToken");
-
-					const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
-							method: "POST",
-							headers: { 
-									"Content-Type": "application/json",
-									"Authorization": `Bearer ${refreshToken}`, 
-							},
-					});
-					const data = await res.json();
-					if (data.error){
-							console.log(data.error);
-					}
-
-					localStorage.setItem("accessToken", data.accessToken);
-					localStorage.setItem("refreshToken", data.refreshToken);
-
-					token = data.accessToken;
-
+			if (data.error || !data.accessToken || !data.refreshToken) {
+				console.log(data.error || "Refresh failed");
+				localStorage.clear();
+				return null;
 			}
 
-			options.headers = {
-					...options.headers,
-					Authorization: `Bearer ${token}`
-			};
+			localStorage.setItem("accessToken", data.accessToken);
+			localStorage.setItem("refreshToken", data.refreshToken);
 
-			return fetch(url, options);
+			token = data.accessToken;
+		}   
+
+		options.headers = {
+			...options.headers,
+			Authorization: `Bearer ${token}`
+		};
+
+		return fetch(url, options);
 
 
 	}
@@ -75,7 +100,6 @@ function Forum() {
 			if (data.error){
 					console.log(data.error);
 			}
-			console.log(data.messages)
 
 			setMessages(
 				data.messages
@@ -102,41 +126,58 @@ function Forum() {
 
 
 	}
+	async function fetchUsername() {
+						
+		const Username = await apiRequest(API_URL+ ":3000"+ "/api/users/getmyusername", {
+				METHOD: "GET",
+				headers: { 
+						"Content-Type": "application/json",
+				},
+				})
+				.then((res) => res.json())
+				.then((data) => data.username);
+
+		setUsername(Username)
+
+
+	}
+	async function deleteMsg(msgId){
+		const res = await apiRequest(API_URL+ ":3000"+ "/api/deleteforummessage", {
+					method: "POST",
+					headers: {
+      					"Content-Type": "application/json"
+    				},
+					body: JSON.stringify({ message_id:msgId}),
+			});
+			const data = await res.json();
+			if (data.error){
+					console.log(data.error);
+			}
+			if (data.success){
+				console.log(`Deleted message with messageId:${msgId}`)
+				setMessages(prev => prev.filter(msg => msg.id !== msgId));
+
+			}
+
+	}
 
 
 	
 
 	useEffect(() => {
+		async function start() {
 
-		async function checkIfValidAccount() {
-						
-            const refreshToken = localStorage.getItem("refreshToken");
-            const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
-                            method: "POST",
-                            headers: { 
-                                    "Content-Type": "application/json",
-                                    "Authorization": `Bearer ${refreshToken}`, 
-                            },
-            });
-            const data = await res.json();
-            if (data.error){
-                    console.log(data.error);
-            }
-            if(data.success){
-                setAccValid(true);
+			const token = localStorage.getItem("accessToken");
 
-            }
-			else{
-            	const navigate = useNavigate();
-                navigate("/LogIn");
-
+			if (!token) {
+				navigate("/LogIn");
+				return;
 			}
 
-
+			await getLatestMsgs();
+			await fetchUsername();
 		}
-		checkIfValidAccount();
-
-
+		start();
 
 		function receiveMessage(msg) {
 			console.log(msg);
@@ -156,27 +197,8 @@ function Forum() {
 
 		
 		
-		async function loadMessages() {
-			await getLatestMsgs();
-		}
-		loadMessages();
-
-		async function fetchUsername() {
-						
-						const Username = await apiRequest(API_URL+ ":3000"+ "/api/users/getmyusername", {
-								METHOD: "GET",
-								headers: { 
-										"Content-Type": "application/json",
-								},
-								})
-								.then((res) => res.json())
-								.then((data) => data.username);
-
-						setUsername(Username)
 
 
-		}
-		fetchUsername();
 		
 
 
@@ -314,14 +336,20 @@ function Forum() {
 								{messages.map(msg => (
 									<li
 										key={msg.id}
+										onMouseEnter={() => setHoveredMsgId(msg.id)}
+  										onMouseLeave={() => setHoveredMsgId(null)}
 										style={{
-											display:"flex",
-											alignItems:"flex-start",
-											gap:"10px"
+											display: "flex",
+											alignItems: "center",
+											gap: "10px",
+											position: "relative",
+											width: "100%",
+											paddingRight: "40px",
+											boxSizing: "border-box"
 										}}
 									>
 										<div
-											className="signUpIconBackground"
+											className="userPfpIconBackground"
 											style={{
 												width:"35px",
 												height:"35px",
@@ -330,8 +358,8 @@ function Forum() {
 											}}
 										>
 											<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> 
-												<path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> 
-												<path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> 
+												<path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> 
+												<path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/> 
 											</svg>
 										</div>
 
@@ -345,12 +373,27 @@ function Forum() {
 											<p style={{margin:0,fontWeight:"bold"}}>
 												{msg.sender_name}
 											</p>
+											
 
 											<p style={{margin:0}}>
 												{msg.message_text}
 											</p>
 										</div>
+										{hoveredMsgId === msg.id && msg.sender_name == username && (
+											<button
+												onClick={() => deleteMsg(msg.id)}
+												style={{
+													pointerEvents: hoveredMsgId === msg.id ? "auto" : "none",
+													background: "transparent",
+													border: "none",
+													cursor: "pointer",
+												}}
+											>
+											×
+											</button>
+										)}
 
+										
 									</li>
 								))}
 								<div ref={bottomRef}></div>

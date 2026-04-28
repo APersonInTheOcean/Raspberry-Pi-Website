@@ -4,9 +4,24 @@ import React, { useState } from "react";
 import TextInputComponent from './TextInputComponent.jsx';
 import SignUpIcon from "../../assets/SignUpIcon.jsx";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
-function sendAccInfoSignUp(user,pass,email){
+
+
+
+function SignUp() {
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState("");
+  const [pass, setPass] = useState("");
+  const [email, setEmail] = useState("");
+  const [responseMessage, setResponseMessage] = useState("");
+
+
+
+  function sendAccInfoSignUp(user,pass,email){
     
 
     // Send data to Node.js backend
@@ -27,21 +42,18 @@ function sendAccInfoSignUp(user,pass,email){
             localStorage.setItem("refreshToken", data.refreshToken); 
             
         }
-        const navigate = useNavigate();
-        navigate("/Home");
+        if (data.accessToken && data.refreshToken) {
+          navigate("/Home");
+        }
 
         return data.message; // return message for whoever called this function
       })
       .catch((err) => console.error(err));
 
-};
+  };
 
 
-function SignUp() {
-  const [user, setUser] = useState("");
-  const [pass, setPass] = useState("");
-  const [email, setEmail] = useState("");
-  const [responseMessage, setResponseMessage] = useState("");
+
   
 
   const handleClick = async () => {

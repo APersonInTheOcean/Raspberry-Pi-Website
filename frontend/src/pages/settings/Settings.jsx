@@ -4,81 +4,84 @@ import React, { useEffect, useState } from "react";
 import TextInputComponent from '../signup/TextInputComponent.jsx';
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
 
+let refreshPromise = null;
 
 function Settings() {
-    const [isAccValid, setAccValid] = useState(false);
-    async function apiRequest(url,options={}) {
+    const navigate = useNavigate();
 
-            let token = localStorage.getItem("accessToken");
-
-            const decoded = jwtDecode(token);
-
-            if (decoded.exp * 1000 < Date.now()) {
-
-                    const refreshToken = localStorage.getItem("refreshToken");
-
-                    const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
-                            method: "POST",
-                            headers: { 
-                                    "Content-Type": "application/json",
-                                    "Authorization": `Bearer ${refreshToken}`, 
-                            },
-                    });
-                    const data = await res.json();
-                    if (data.error){
-                            console.log(data.error);
-                    }
-
-                    localStorage.setItem("accessToken", data.accessToken);
-                    localStorage.setItem("refreshToken", data.refreshToken);
-
-                    token = data.accessToken;
-
+    async function refreshTokens() {
+            if (!refreshPromise) {
+                const refreshToken = localStorage.getItem("refreshToken");
+    
+                refreshPromise = fetch(API_URL + ":3000/api/refresh", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${refreshToken}`,
+                },
+                })
+                .then(res => res.json())
+                .finally(() => {
+                    refreshPromise = null;
+                });
             }
-
+    
+            return refreshPromise;
+        }
+    
+    
+        async function apiRequest(url,options={}) {
+    
+            let token = localStorage.getItem("accessToken");
+            if (!token) {
+                return null;
+            }
+    
+            const decoded = jwtDecode(token);
+    
+            if (decoded.exp * 1000 < Date.now()) {
+                const data = await refreshTokens();
+    
+                if (data.error || !data.accessToken || !data.refreshToken) {
+                    console.log(data.error || "Refresh failed");
+                    localStorage.clear();
+                    return null;
+                }
+    
+                localStorage.setItem("accessToken", data.accessToken);
+                localStorage.setItem("refreshToken", data.refreshToken);
+    
+                token = data.accessToken;
+            }   
+    
             options.headers = {
-                    ...options.headers,
-                    Authorization: `Bearer ${token}`
+                ...options.headers,
+                Authorization: `Bearer ${token}`
             };
-
+    
             return fetch(url, options);
-
-
-    }
+    
+    
+        }
 
 
     useEffect(() => {
 
-        async function checkIfValidAccount() {
-						
-            const refreshToken = localStorage.getItem("refreshToken");
-            const res = await fetch(API_URL+ ":3000"+ "/api/refresh", {
-                            method: "POST",
-                            headers: { 
-                                    "Content-Type": "application/json",
-                                    "Authorization": `Bearer ${refreshToken}`, 
-                            },
-            });
-            const data = await res.json();
-            if (data.error){
-                    console.log(data.error);
-            }
-            if(data.success){
-                setAccValid(true);
-                
-            }
-            else{
-                const navigate = useNavigate();
-                navigate("/Home");
+        async function start() {
+			const token = localStorage.getItem("accessToken");
 
-            }
+			if (!token) {
+			navigate("/LogIn");
+			return;
+			}
 
-
+			await getLatestMsgs();
+			await fetchUsername();
 		}
-		checkIfValidAccount();
 
 
     }, []);
@@ -88,7 +91,7 @@ function Settings() {
     function handleLogOutClick(){
         async function logOutDatabase() {
             const refreshToken = localStorage.getItem("refreshToken");
-            const res = await apiRequest(API_URL+ ":3000"+ "/api/logout", {
+            const res = await fetch(API_URL+ ":3000"+ "/api/logout", {
                         method: "post",
                         headers: { 
                                     "Content-Type": "application/json",
@@ -102,7 +105,7 @@ function Settings() {
             if (data.success){
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");
-                const navigate = useNavigate();
+                
                 navigate("/Home");
             }
 

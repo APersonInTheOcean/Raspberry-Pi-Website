@@ -4,49 +4,53 @@ import React, { useState } from "react";
 import TextInputComponent from '../signup/TextInputComponent.jsx';
 import SignUpIcon from "../../assets/SignUpIcon.jsx";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 const API_URL = import.meta.env.VITE_SOCKET_URL ;
 
 
 
-function sendAccInfoLogIn(user,pass){
-    
-    return fetch(API_URL+ ":3000"+ "/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ User: user, Password: pass }),
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.accessToken) {
-            localStorage.setItem("accessToken", data.accessToken); 
 
-        }
-        if (data.refreshToken) {
-            localStorage.setItem("refreshToken", data.refreshToken); 
-            
-        }
-        else if(data.accessToken){
-            const navigate = useNavigate();
-            navigate("/Home");
-            
-        }
-        return data.message; // return message for whoever called this function
-    })
-    .catch(err => console.error(err));
-      
-
-};
 
 
 
 function LogIn() {
+    const navigate = useNavigate();
+
+
+
     const [user, setUser] = useState("");
     const [pass, setPass] = useState("");
     const [responseMessage, setResponseMessage] = useState("");
   
 
 
+    function sendAccInfoLogIn(user,pass){
+        
+        return fetch(API_URL+ ":3000"+ "/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ User: user, Password: pass }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.accessToken) {
+                localStorage.setItem("accessToken", data.accessToken); 
 
+            }
+            if (data.refreshToken) {
+                localStorage.setItem("refreshToken", data.refreshToken); 
+                
+            }
+            if (data.accessToken && data.refreshToken) {
+            navigate("/Home");
+            }
+            return data.message; // return message for whoever called this function
+        })
+        .catch(err => console.error(err));
+        
+
+    };
 
 
 
