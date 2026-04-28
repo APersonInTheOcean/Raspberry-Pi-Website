@@ -18,7 +18,8 @@ const io = new Server(server, {
   cors: {
 	origin: [
 	  process.env.CLIENT_URL,
-	  process.env.CLIENT_URL2
+	  process.env.CLIENT_URL2,
+	  process.env.PUBLIC_URL,
 	],
 	methods: ["GET", "POST"] //  React frontend
   }
