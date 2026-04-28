@@ -413,15 +413,16 @@ app.post("/api/deleteforummessage", verify, (req, res) => {
 
 	db.query(sql, [msgId, userId], (err, result) => {
 		if (err) {
-		console.error(err);
-		return res.status(500).json({ error: "Database error" });
+			console.error(err);
+			return res.status(500).json({ error: "Database error" });
 		}
 
 		if (result.affectedRows === 0) {
-		return res.status(403).json({
-			error: `You can only delete your own messages.`
-		});
+			return res.status(403).json({
+				error: `You can only delete your own messages.`
+			});
 		}
+		io.emit("forum_delete_message", {message_id:msgId});
 
 		res.json({ success: true });
 	});

@@ -155,7 +155,6 @@ function Forum() {
 			}
 			if (data.success){
 				console.log(`Deleted message with messageId:${msgId}`)
-				setMessages(prev => prev.filter(msg => msg.id !== msgId));
 
 			}
 
@@ -194,6 +193,11 @@ function Forum() {
 		}
 
 		socket.on("forum_receive_message", receiveMessage);
+		socket.on("forum_delete_message", (msg)=> {
+			setMessages(prev => prev.filter(msg => msg.id !== data.message_id));
+
+		});
+
 		socket.on("connect", () => {
 			console.log("Socket connected:", socket.id);
 		});
@@ -218,8 +222,11 @@ function Forum() {
 
 		
 		return () => {
-			socket.off("forum_receive_message", receiveMessage);
-		};
+		socket.off("forum_receive_message", receiveMessage);
+		socket.off("connect");
+		socket.off("connect_error");
+		socket.off("disconnect");
+	};
 	}, []);
 
 
@@ -308,7 +315,19 @@ function Forum() {
 
 					}}>
 								<li style={{ margin: "0% 10% 0 10% ",width: "100%" }} >
-										<input className="msginput" value={sendMsgBoxText} onChange={(e) => setSendMsgBoxText(e.target.value)}  id="text" placeholder="Type here..." style={{ width: "100%", lineHeight: "25px" , boxSizing: "border-box"}}></input>
+										<input className="msginput" 
+											value={sendMsgBoxText} 
+											onKeyDown={(e) => {
+												if (e.key === "Enter") {
+												handleClick();
+												}
+											}} 
+											onChange={(e) => 
+											setSendMsgBoxText(e.target.value)
+											}  
+											id="text" placeholder="Type here..." 
+											style={{ width: "100%", lineHeight: "25px" , boxSizing: "border-box"}}
+										></input>
 
 								</li>
 								<li>
