@@ -553,12 +553,9 @@ function checkIfEmailValid(Email,res){
 
 
 
-server.listen(3000);
-
-
-app.listen(3000, ()=> {
-	console.log('The server is running on: Port 3000')
-})
+server.listen(3000, "0.0.0.0", () => {
+  console.log("Cors running on port 3000");
+});
 
 app.get('/', (req,res)=>{
 	res.send("Hello World!")
