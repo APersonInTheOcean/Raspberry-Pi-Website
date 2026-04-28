@@ -193,9 +193,10 @@ function Forum() {
 		}
 
 		socket.on("forum_receive_message", receiveMessage);
-		socket.on("forum_delete_message", (msg)=> {
-			setMessages(prev => prev.filter(msg => msg.id !== data.message_id));
-
+		socket.on("forum_delete_message", (data) => {
+			setMessages(prev =>
+				prev.filter(msg => msg.id !== data.message_id)
+			);
 		});
 
 		socket.on("connect", () => {
