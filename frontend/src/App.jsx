@@ -4,7 +4,7 @@ import LogIn from './pages/login/LogIn.jsx';
 import Forum from './pages/forum/Forum.jsx';
 import Game from './pages/game/Game.jsx';
 import Settings from './pages/settings/Settings.jsx';
-
+import GradeCalc from './pages/gradecalc/GradeCalc.jsx';
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -24,7 +24,7 @@ function App() {
         <Route path="/Settings" element={<Settings />} />
         <Route path="/Forum" element={<Forum />} />
         <Route path="/Game" element={<Game />} />
-
+  <Route path="/GradeCalc" element={<GradeCalc />} />
       </Routes>
 
     </BrowserRouter>

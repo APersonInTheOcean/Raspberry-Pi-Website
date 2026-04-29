@@ -97,15 +97,16 @@ function TopBox(){
                         style={{
                             gap: "20px",
                             width: "200px"}} >
-                        <li>
+                        <li style={{marginLeft: "20px", fontSize: "20px", fontWeight: "bold",flexShrink: 0}}>
                             <Link to="/Forum">
                             Forum
                             </Link>
                         </li>
-                        {/* <li> <Link to="/Game">
-                            Game
+                        <li style={{marginLeft: "20px", fontSize: "20px", fontWeight: "bold",flexShrink: 0}}> 
+                            <Link to="/GradeCalc" >
+                            Grade Calculator
                             </Link>
-                        </li> */}
+                        </li>
                         <li>
                             
                         </li>
