@@ -91,18 +91,18 @@ function TopBox(){
 
 
     return (
-        <ul className ="horizontalUl" style={{ justifyContent: "space-between"}}>
+        <ul className ="horizontalUl" style={{ justifyContent: "space-between", display:"flex"}}>
             <li>
                 <ul className ="horizontalUl" 
                         style={{
-                            gap: "20px",
-                            width: "200px"}} >
+                            gap: "20px"
+                            }} >
                         <li style={{marginLeft: "20px", fontSize: "20px", fontWeight: "bold",flexShrink: 0}}>
                             <Link to="/Forum">
                             Forum
                             </Link>
                         </li>
-                        <li style={{marginLeft: "20px", fontSize: "20px", fontWeight: "bold",flexShrink: 0}}> 
+                        <li style={{marginLeft: "20px", fontSize: "20px", fontWeight: "bold", flexWrap:"wrap"}}> 
                             <Link to="/GradeCalc" >
                             Grade Calculator
                             </Link>
