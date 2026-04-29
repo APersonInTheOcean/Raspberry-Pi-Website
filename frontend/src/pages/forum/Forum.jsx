@@ -400,9 +400,27 @@ function Forum() {
 												gap:"2px"
 											}}
 										>
-											<p style={{margin:0,fontWeight:"bold"}}>
-												{msg.sender_name}
-											</p>
+											<div
+											style= {{
+												display:"flex",
+												flexDirection:"row",
+												gap:"10px"
+											}}
+											
+											>
+												<p style={{margin:0,fontWeight:"bold"}}>
+													{msg.sender_name}
+												</p>
+												<p style={{ margin:0, fontStyle:"italic" }}>
+												{new Date(msg.sent_at).toLocaleString([], {
+													year: "numeric",
+													month: "numeric",
+													day: "numeric",
+													hour: "numeric",
+													minute: "2-digit"
+												})}
+												</p>
+											</div>
 											
 
 											<p style={{margin:0}}>

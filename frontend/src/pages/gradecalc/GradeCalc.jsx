@@ -73,7 +73,7 @@ function GradeCalc() {
 					<div
 					style={{
 						margin: "0 auto",
-						marginTop: "10%",
+						marginTop: "0%",
 						width: "100%",
 						display: "flex",
 						justifyContent: "center",
